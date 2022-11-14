@@ -54,7 +54,7 @@ public class BotClient {
      * Initializes the TCP Client Session for the server and registers listeners.
      */
     public void createSession() {
-        session = new TcpClientSession(getHost(), getPort(), protocol, null);
+        session = new TcpClientSession(getHost(), getPort(), protocol, BotClientManager.getProxy());
 
         session.addListener(new SessionAdapter() {
             @Override

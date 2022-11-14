@@ -1,8 +1,10 @@
 package me.herrphoenix.mcbm.bot;
 
+import com.github.steveice10.packetlib.ProxyInfo;
 import me.herrphoenix.mcbm.util.TextUtils;
 import me.herrphoenix.mcbm.util.LogColor;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,7 @@ import java.util.List;
  */
 public class BotClientManager {
     private static List<BotClient> bots = new ArrayList<>();
+    private static ProxyInfo proxy;
 
     /**
      * Creates a new Bot and registers it.
@@ -30,6 +33,10 @@ public class BotClientManager {
         return bot;
     }
 
+    public static void setProxy(ProxyInfo.Type proxyType, String host, int port) {
+        proxy = new ProxyInfo(proxyType, new InetSocketAddress(host, port));
+    }
+
     /**
      * Gets a bot, given an ID.
      *
@@ -42,10 +49,11 @@ public class BotClientManager {
                 return bot;
             }
         }
-
-        System.out.println(LogColor.WHITE + "[" + TextUtils.getCurrentTime() + "]" + LogColor.RED_BRIGHT +
-                "[ERR] Couldn't find any bot on channel " + id);
         return null;
+    }
+
+    public static ProxyInfo getProxy() {
+        return proxy;
     }
 
     /**
