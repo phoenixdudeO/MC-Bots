@@ -1,5 +1,6 @@
 package me.herrphoenix.mcbm;
 
+import com.github.steveice10.packetlib.ProxyInfo;
 import me.herrphoenix.mcbm.bot.BotClient;
 import me.herrphoenix.mcbm.bot.BotClientManager;
 import me.herrphoenix.mcbm.util.TextUtils;
@@ -23,7 +24,7 @@ public class Main {
 
     public static void main(String[] args) {
         System.out.println(LogColor.WHITE_BOLD_BRIGHT + "Minecraft Bots Manager");
-        System.out.println(LogColor.WHITE_BRIGHT + "Version: 2.2.0 | Author: HerrPhoenix");
+        System.out.println(LogColor.WHITE_BRIGHT + "Version: 2.3.0 | Author: HerrPhoenix");
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -72,9 +73,8 @@ public class Main {
      */
     private static void handleInput(String input) {
         if (input.startsWith(".")) {
-            String raw = input.replace(".", "");
-            String[] arguments = raw.split(" ");
-            String command = arguments[0];
+            String[] arguments = input.split(" ");
+            String command = arguments[0].replace(".", "");
 
             switch (command) {
                 case "help":
@@ -105,15 +105,40 @@ public class Main {
                         bot.set(newBot);
                     }
                     break;
+                case "proxy":
+                    if (arguments.length > 3) {
+                        ProxyInfo.Type type;
+                        String host = arguments[2];
+                        int port;
+
+                        try {
+                            port = Integer.parseInt(arguments[3]);
+                            type = ProxyInfo.Type.valueOf(arguments[1]);
+                        } catch (NumberFormatException e) {
+                            System.out.println(LogColor.RED_BRIGHT + "[ERR] Port \"" + arguments[3] + "\"" +
+                                    " is in incorrect format.");
+                            break;
+                        } catch (IllegalArgumentException e) {
+                            System.out.println(LogColor.RED_BRIGHT + "[ERR] Type \"" + arguments[1] + "\"" +
+                                    " is incorrect.");
+                            System.out.println(LogColor.WHITE_BRIGHT + "Proxy Types are: HTTP, SOCKS4, SOCKS5\n");
+                            break;
+                        }
+
+                        BotClientManager.setProxy(type, host, port);
+                        System.out.println(LogColor.GREEN_BRIGHT + "[SUCCESS] " + LogColor.WHITE_BRIGHT +
+                                type.toString().toUpperCase() + " Proxy set to " + host + ":" + port);
+                    }
+                    break;
                 default:
                     int id;
 
                     try {
-                        id = Integer.parseInt(raw);
+                        id = Integer.parseInt(command);
                     } catch (NumberFormatException e) {
-                        System.out.println(LogColor.RED_BRIGHT + "[ERR] Command \"" + raw + "\"" +
+                        System.out.println(LogColor.RED_BRIGHT + "[ERR] Command \"" + command + "\"" +
                                 " does not exist.");
-                        return;
+                        break;
                     }
 
                     BotClient toSet = BotClientManager.getBot(id);
@@ -146,13 +171,19 @@ public class Main {
      */
     private static String getHelp() {
         return LogColor.RESET + "\n" +
-                "   .help           -  Show this message\n\n" +
-                "   .disconnect     -  Disconnect current bot from the server\n\n" +
-                "   .connect        -  Connect current bot to the server\n\n" +
-                "   .close          -  Close current bot channel\n\n" +
-                "   .exit           -  Close Application\n\n" +
-                "   .add <username> -  Add a bot to automatically connect \n" +
-                "                      to the server.\n\n" +
-                "   .<id>           -  Switch channel to the given ID\n";
+                "   .help                          -  Show this message.\n\n" +
+                "   .disconnect                    -  Disconnect current bot from the server.\n\n" +
+                "   .connect                       -  Connect current bot to the server.\n\n" +
+                "   .close                         -  Close current bot channel.\n\n" +
+                "   .exit                          -  Close Application.\n\n" +
+                "   .add <username>                -  Add a bot to automatically connect \n" +
+                "                                     to the server.\n\n" +
+                "   .proxy <type> <address> <port> -  Set proxy to use to connect to the server.\n" +
+                "                                     Types: HTTP, SOCKS4, SOCKS5.\n" +
+                "                                     Can be used to bypass AntiVPNs if the server's\n" +
+                "                                     vpn database does not contain the used proxy.\n\n" +
+                "   .<id>                          -  Switch channel to the given ID.\n\n" +
+                "Note: Anything else you type in the console \n" +
+                "      is sent by the bot as a chat message.\n";
     }
 }
