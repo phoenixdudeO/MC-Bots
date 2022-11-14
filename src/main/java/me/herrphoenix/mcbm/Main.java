@@ -133,7 +133,9 @@ public class Main {
                     break;
             }
         } else {
-            bot.get().sendMessage(input);
+            if (bot.get() != null) {
+                bot.get().sendMessage(input);
+            }
         }
     }
 
